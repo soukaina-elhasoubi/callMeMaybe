@@ -19,10 +19,10 @@ def main():
         best_id = max(range(len(logits)), key=logits.__getitem__)
         best_score = logits[best_id]
         
-        # print(f"score {logits[id]}")
-        # print(sc.decode(id))
-        # lis.append(logits[id])
-        # ids.append(logits[id])
+        print(f"score {best_score}")
+        print(sc.decode(id))
+        lis.append(logits[id])
+        ids.append(logits[id])
         if pos == 10:
             break
         pos += 1
