@@ -34,29 +34,49 @@ class ConstrainedDecoder:
             return [":"]
 
         return []
-    
-    # def filter_toen(
-    #         self,
-    #         logits: dict[str, float],
-    #         state: JsonState
-    # ) -> dict[str, float]:
-    #     allowed = self.get_allowed_tokens(state)
-    #     filtered = {}
-    #     for token, score in logits.items():
 
+    def filter_logits(
+            self,
+            logits: dict[str, float],
+            state: JsonState
+            ) -> dict[str, float]:
+        allowed = self.get_allowed_tokens(state)
+        filtered = {}
+        for token, score in logits.items():
+            if token in allowed:
+                filtered[token] = score
+            else:
+                filtered[token] = float("-inf")
+        return filtered
 # decoder = ConstrainedDecoder("./test_vocab.json")
 # print(decoder.vocabulary)
 
+
 decoder = ConstrainedDecoder("test_vocab.json")
+
+fake_logits = {
+    '"call"': 1.1,
+    "{": 1.2,
+    '"name"': 5.4,
+    "banana": 9.7,
+    "}": 3.1
+}
 
 state = JsonState()
 
-print(
-    decoder.get_allowed_tokens(state)
-)
+# print(
+#     decoder.get_allowed_tokens(state)
+# )
 
-state.advance()
+# state.advance()
+
+# print(
+#     decoder.get_allowed_tokens(state)
+# )
 
 print(
-    decoder.get_allowed_tokens(state)
+    decoder.filter_logits(
+        fake_logits,
+        state
+    )
 )

@@ -1,33 +1,36 @@
-import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'llm_sdk')))
-
+import sys
+import os
 from llm_sdk import Small_LLM_Model
 
+sys.path.insert(0, os.path.abspath(os.path.join(
+    os.path.dirname(__file__),
+    '..',
+    'llm_sdk'
+    )))
+
+
 def main():
-    sc  = Small_LLM_Model()
+    sc = Small_LLM_Model()
     lis = sc.encode("what is the capital of france ?").tolist()[0]
     capital = ['paris', 'rabat', 'qahira', 'madrid']
     captial_ids = []
 
     for i in capital:
         captial_ids.append(sc.encode(i).tolist()[0][0])
-    
+
     ids = []
     pos = 0
     while True:
         logits = sc.get_logits_from_input_ids(lis)
-        best_id = max(range(len(logits)), key=logits.__getitem__)
-        best_score = logits[best_id]
-        
-        print(f"score {best_score}")
-        print(sc.decode(id))
-        lis.append(logits[id])
-        ids.append(logits[id])
-        if pos == 10:
+        id = max(range(len(logits)), key=logits.__getitem__)
+        # best_score = logits[id]
+        lis.append(id)
+        ids.append(id)
+        if pos == 50:
             break
         pos += 1
-    print(ids)
-    # print(sc.decode([ids]))
+    # print(ids)
+    print(sc.decode(ids))
 
 
 #     st = sc.decode(lis)
@@ -40,7 +43,7 @@ def main():
 #     es4 = sc.encode("    ").tolist()[0]
 #     tab2 = sc.encode("      ").tolist()[0]
 #     inf = sc.decode([188])
-    
+
 #     des = sc.decode([154])
 #     fr = sc.decode([82])
 #     print(inf)
