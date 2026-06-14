@@ -1,5 +1,5 @@
 # ABOUTME: LLM SDK for local model inference using Hugging Face transformers.
-# ABOUTME: Provides Small_LLM_Model class for loading and running causal language models.
+# ABOUTME: Provides Small_LLM_Model class for loading and running causal langua000000000ge models.
 
 import time
 from typing import Tuple

@@ -33,6 +33,12 @@ class ConstrainedDecoder:
         if state.step == 2:
             return [":"]
 
+        if state.step == 3:
+            return ['"fn_add_numbers']
+
+        if state.step == 4:
+            return ["}"]
+
         return []
 
     def filter_logits(
@@ -48,6 +54,21 @@ class ConstrainedDecoder:
             else:
                 filtered[token] = float("-inf")
         return filtered
+
+    def select_best_token(
+            self,
+            filtered_logits: dict[str, float]
+    ) -> str:
+        best_token = None
+        best_score = float("-inf")
+
+        for token, score in filtered_logits.items():
+            if score > best_score:
+                best_score = score
+                best_token = token
+
+        return best_token
+
 # decoder = ConstrainedDecoder("./test_vocab.json")
 # print(decoder.vocabulary)
 
@@ -80,3 +101,36 @@ print(
         state
     )
 )
+
+fake_logits = {
+    "{": 1.2,
+    '"name"': -float("inf"),
+    "banana": -float("inf"),
+    "}": -float("inf")
+}
+
+print(
+    decoder.select_best_token(
+        fake_logits
+    )
+)
+
+for _ in range(6):
+    print(f"step: {state.step}",
+          decoder.get_allowed_tokens(state)
+          )
+    state.advance()
+state = JsonState()
+
+output = ""
+
+while True:
+    allowed = decoder.get_allowed_tokens(state)
+
+    if not allowed:
+        break
+
+    output += allowed[0]
+    state.advance()
+
+print(output)
