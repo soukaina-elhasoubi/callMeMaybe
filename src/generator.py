@@ -17,32 +17,48 @@ class FunctionCallGenerator:
             self,
             prompt: str
     ) -> str:
-        pl = prompt.lower()
-        if "sum" in pl or "add" in pl:
-            return "fn_add_numbers"
+        prompt_words = set(
+            prompt.lower().split()
+        )
 
-        if "reverse" in pl:
-            return "fn_reverse_string"
-        if any(
-            word in pl
-            for word in ["hello", "hi", "greet"]
-        ):
-            return "fn_greet"
-        return ""
+        best_score = 0
+        best_fn = ""
+
+        for fn in self.functions:
+            desc_words = set(
+                fn.description.lower().split()
+            )
+
+            score = len(prompt_words & desc_words)
+            if score > best_score:
+                best_score = score
+                best_fn = fn.name
+        return best_fn
 
     def _extract_parameters(
             self,
             prompt: str,
             function_name: str
     ) -> Dict[str, Any]:
-        if function_name == "fn_add_numbers":
-            pass
+    
+        definition = None
 
-        if function_name == "fn_reverse_string":
-            pass
+        for fn in self.functions:
+            if fn.name == function_name:
+                definition = fn
+                break
 
-        if function_name == "fn_greet":
-            pass
+        if definition is None:
+            return {}
+
+        result = {}
+
+        for param_name, param_def in definition.parameters.items():
+            print(
+                param_name,
+                param_def.type
+            )
+        return result
 
     def generate_result(self, prompt: str) -> Dict[str, Any]:
         function_name = self._choose_function(prompt)
@@ -101,31 +117,35 @@ class FunctionCallGenerator:
         #     "name": "",
         #     "parameters": {}
         # }
-        def _choose_function(
-        self,
-        prompt: str
-        ) -> str:
 
-            prompt_words = set(
-                prompt.lower().split()
-            )
+        # def _choose_function(
+        # self,
+        # prompt: str
+        # ) -> str:
 
-            best_function = ""
-            best_score = 0
+        #     prompt_words = set(
+        #         prompt.lower().split()
+        #     )
 
-            for fn in self.functions:
+        #     best_function = ""
+        #     best_score = 0
 
-                description_words = set(
-                    fn.description.lower().split()
-                )
+        #     for fn in self.functions:
 
-                score = len(
-                    prompt_words &
-                    description_words
-                )
+        #         description_words = set(
+        #             fn.description.lower().split()
+        #         )
 
-                if score > best_score:
-                    best_score = score
-                    best_function = fn.name
+        #         score = len(
+        #             prompt_words &
+        #             description_words
+        #         )
 
-            return best_function
+        #         if score > best_score:
+        #             best_score = score
+        #             best_function = fn.name
+
+        #     return best_function
+# generator.generate_result(
+#     "add 12 and 30"
+# )
