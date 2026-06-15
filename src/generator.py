@@ -17,19 +17,20 @@ class FunctionCallGenerator:
             self,
             prompt: str
     ) -> str:
-        prompt_words = set(
-            prompt.lower().split()
-        )
 
         best_score = 0
-        best_fn = ""
+        best_fn = float("-inf")
+
+        prompt_ids = self.model.encode(prompt)
 
         for fn in self.functions:
-            desc_words = set(
-                fn.description.lower().split()
-            )
+            function_text = f"{fn.name}. {fn.description}"
+            function_ids = self.model.encode(function_text)
 
-            score = len(prompt_words & desc_words)
+            input_ids = prompt_ids.tolist() + function_ids.tolist()
+            logits = self.model.get_logits_from_input_ids(input_ids)
+
+            score = sum(logits)
             if score > best_score:
                 best_score = score
                 best_fn = fn.name
