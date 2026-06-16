@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 # import re
 
-from .models import FunctionDefinition
+from models import FunctionDefinition
 
 
 class FunctionCallGenerator:
@@ -21,19 +21,21 @@ class FunctionCallGenerator:
         best_score = 0
         best_fn = float("-inf")
 
-        prompt_ids = self.model.encode(prompt)
+        prompt_ids = self.model.encode(prompt).tolist()[0]
 
         for fn in self.functions:
             function_text = f"{fn.name}. {fn.description}"
-            function_ids = self.model.encode(function_text)
+            function_ids = self.model.encode(function_text).tolist()[0]
 
-            input_ids = prompt_ids.tolist() + function_ids.tolist()
+            input_ids = prompt_ids + function_ids
             logits = self.model.get_logits_from_input_ids(input_ids)
-
-            score = sum(logits)
-            if score > best_score:
-                best_score = score
-                best_fn = fn.name
+            token = logits.index(max(logits))
+            print(type(token))
+            print(f'this decode ot token {self.model.decode(token)}')
+            # score = sum(logits)
+            # if score > best_score:
+            #     best_score = score
+            #     best_fn = fn.name
         return best_fn
 
     def _extract_parameters(
@@ -150,3 +152,20 @@ class FunctionCallGenerator:
 # generator.generate_result(
 #     "add 12 and 30"
 # )
+data = {
+    "name": "fn_add_numbers",
+    "description": "Add two numbers together and return their sum.",
+    "parameters": {
+      "a": {
+        "type": "number"
+      },
+      "b": {
+        "type": "number"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  }
+fun = FunctionDefinition([data])
+FunctionCallGenerator(fun)._choose_function('what is the sum of 2 and 3 ?')
